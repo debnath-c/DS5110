@@ -17,38 +17,41 @@ library(modelr)
 library(plyr)
 ```
 
+```{r,include=FALSE}
+col_09_10 <- read.csv("/Users/camelliadebnath/Documents/Academics/Data Management DS 5110/CollegeScorecard_Raw_Data/MERGED2009_10_PP.csv")
+col_11_12 <- read.csv("/Users/camelliadebnath/Documents/Academics/Data Management DS 5110/CollegeScorecard_Raw_Data/MERGED2011_12_PP.csv")
+col_12_13 <- read.csv("/Users/camelliadebnath/Documents/Academics/Data Management DS 5110/CollegeScorecard_Raw_Data/MERGED2012_13_PP.csv")
+col_13_14 <- read.csv("/Users/camelliadebnath/Documents/Academics/Data Management DS 5110/CollegeScorecard_Raw_Data/MERGED2013_14_PP.csv")
+col_14_15 <- read.csv("/Users/camelliadebnath/Documents/Academics/Data Management DS 5110/CollegeScorecard_Raw_Data/MERGED2014_15_PP.csv")
+```
+
 ## 1. Combining the data for 2008-2013  
 
 ```{r, warning=FALSE, message=FALSE}
-col_09_10 <- read.csv("MERGED2009_10_PP.csv")
 college_09_10 <- col_09_10 %>%
   mutate(GRAD_DEBT_MDN = as.numeric(as.character(GRAD_DEBT_MDN)),
          MD_EARN_WNE_P8 = as.numeric(as.character(MD_EARN_WNE_P8)),
          "Year" = "2009-10") %>%
    mutate(DEBT_TO_EARN = GRAD_DEBT_MDN/MD_EARN_WNE_P8)
 
-col_11_12 <- read.csv("MERGED2011_12_PP.csv")
 college_11_12 <- col_11_12 %>%
   mutate(GRAD_DEBT_MDN = as.numeric(as.character(GRAD_DEBT_MDN)),
          MD_EARN_WNE_P8 = as.numeric(as.character(MD_EARN_WNE_P8)),
          "Year" = "2011-12") %>%
    mutate(DEBT_TO_EARN = GRAD_DEBT_MDN/MD_EARN_WNE_P8)
 
-col_12_13 <- read.csv("MERGED2012_13_PP.csv")
 college_12_13 <- col_12_13 %>%
   mutate(GRAD_DEBT_MDN = as.numeric(as.character(GRAD_DEBT_MDN)),
          MD_EARN_WNE_P8 = as.numeric(as.character(MD_EARN_WNE_P8)),
          "Year" = "2012-13") %>%
    mutate(DEBT_TO_EARN = GRAD_DEBT_MDN/MD_EARN_WNE_P8)
 
-col_13_14 <- read.csv("MERGED2013_14_PP.csv")
 college_13_14 <- col_13_14 %>%
   mutate(GRAD_DEBT_MDN = as.numeric(as.character(GRAD_DEBT_MDN)),
          MD_EARN_WNE_P8 = as.numeric(as.character(MD_EARN_WNE_P8)),
          "Year" = "2013-14") %>%
    mutate(DEBT_TO_EARN = GRAD_DEBT_MDN/MD_EARN_WNE_P8)
 
-col_14_15 <- read.csv("MERGED2014_15_PP.csv")
 college_14_15 <- col_14_15 %>%
   mutate(GRAD_DEBT_MDN = as.numeric(as.character(GRAD_DEBT_MDN)),
          MD_EARN_WNE_P8 = as.numeric(as.character(MD_EARN_WNE_P8)),
@@ -56,14 +59,16 @@ college_14_15 <- col_14_15 %>%
    mutate(DEBT_TO_EARN = GRAD_DEBT_MDN/MD_EARN_WNE_P8)
 
 
-college_09_15 <- rbind(college_09_10, college_11_12, college_12_13, college_13_14, college_14_15)
+college_09_15 <- rbind(college_09_10, college_11_12,
+                       college_12_13, college_13_14, college_14_15)
 ```
 
 
 ## 2. Partitioning the data into training and test sets  
 
 ```{r, message=FALSE, warning=FALSE}
-college_09_15_parts <- resample_partition(college_09_15 ,c(train = 0.6, valid = 0.2, test = 0.2)) 
+college_09_15_parts <- resample_partition(college_09_15, 
+                                          c(train = 0.6, valid = 0.2, test = 0.2)) 
 
 college_09_15_train_ <- as_tibble(college_09_15_parts$train)
 college_09_15_test_ <- as_tibble(college_09_15_parts$test)
@@ -77,71 +82,78 @@ Intuitively, we select a subset of variables, and tidy the data for further EDA.
 
 ```{r, message=FALSE, warning=FALSE}
 college_09_15_train <- college_09_15_train_ %>%
-  select(INSTNM, COMPL_RPY_3YR_RT, GRAD_DEBT_MDN,PCTFLOAN, PCTPELL, MD_EARN_WNE_P6, MD_EARN_WNE_P8, MD_EARN_WNE_P10,
-         CDR3, MEDIAN_HH_INC, AGE_ENTRY, UGDS, CONTROL, COSTT4_A, COSTT4_P, Year, DEBT_TO_EARN, MD_FAMINC) %>%
+  select(INSTNM, COMPL_RPY_3YR_RT, GRAD_DEBT_MDN,PCTFLOAN, PCTPELL, 
+         MD_EARN_WNE_P6, MD_EARN_WNE_P8, MD_EARN_WNE_P10,
+         CDR3, MEDIAN_HH_INC, AGE_ENTRY, UGDS, CONTROL, COSTT4_A, 
+         COSTT4_P, Year, DEBT_TO_EARN, MD_FAMINC) %>%
   mutate(COMPL_RPY_3YR_RT = as.numeric(as.character(COMPL_RPY_3YR_RT)),
          GRAD_DEBT_MDN = as.numeric(as.character(GRAD_DEBT_MDN)),
          MD_EARN_WNE_P6 = as.numeric(as.character(MD_EARN_WNE_P6)),
          MD_EARN_WNE_P8 = as.numeric(as.character(MD_EARN_WNE_P8)),
          MD_EARN_WNE_P10 = as.numeric(as.character(MD_EARN_WNE_P10)),
-         CDR3 = as.numeric(as.character(CDR3)), # three-year cohort default rate
-         MEDIAN_HH_INC = as.numeric(as.character(MEDIAN_HH_INC)), #Median household income
+         CDR3 = as.numeric(as.character(CDR3)), 
+         MEDIAN_HH_INC = as.numeric(as.character(MEDIAN_HH_INC)),
          AGE_ENTRY = as.numeric(as.character(AGE_ENTRY)),
          UGDS = as.numeric(as.character(UGDS)),
          CONTROL =as.character(CONTROL),
-         COSTT4_A = as.numeric(as.character(COSTT4_A)), #avg cost of attendance for academic year institutions
-         COSTT4_P = as.numeric(as.character(COSTT4_P)), #avg cost of attendance for program year institutions
+         COSTT4_A = as.numeric(as.character(COSTT4_A)),
+         COSTT4_P = as.numeric(as.character(COSTT4_P)),
          PCTFLOAN = as.numeric(as.character(PCTFLOAN)),
          PCTPELL = as.numeric(as.character(PCTPELL)),
          MD_FAMINC = as.numeric(as.character(MD_FAMINC))) 
 
 college_09_15_test <- college_09_15_test_ %>%
-  select(INSTNM, COMPL_RPY_3YR_RT, GRAD_DEBT_MDN,PCTFLOAN, PCTPELL, MD_EARN_WNE_P6, MD_EARN_WNE_P8, MD_EARN_WNE_P10,
-         CDR3, MEDIAN_HH_INC, AGE_ENTRY, UGDS, CONTROL, COSTT4_A, COSTT4_P, Year, DEBT_TO_EARN, MD_FAMINC) %>%
+  select(INSTNM, COMPL_RPY_3YR_RT, GRAD_DEBT_MDN,PCTFLOAN, PCTPELL,
+         MD_EARN_WNE_P6, MD_EARN_WNE_P8, MD_EARN_WNE_P10,
+         CDR3, MEDIAN_HH_INC, AGE_ENTRY, UGDS, CONTROL, COSTT4_A, 
+         COSTT4_P, Year, DEBT_TO_EARN, MD_FAMINC) %>%
   mutate(COMPL_RPY_3YR_RT = as.numeric(as.character(COMPL_RPY_3YR_RT)),
          GRAD_DEBT_MDN = as.numeric(as.character(GRAD_DEBT_MDN)),
          MD_EARN_WNE_P6 = as.numeric(as.character(MD_EARN_WNE_P6)),
          MD_EARN_WNE_P8 = as.numeric(as.character(MD_EARN_WNE_P8)),
          MD_EARN_WNE_P10 = as.numeric(as.character(MD_EARN_WNE_P10)),
-         CDR3 = as.numeric(as.character(CDR3)), # three-year cohort default rate
-         MEDIAN_HH_INC = as.numeric(as.character(MEDIAN_HH_INC)), #Median household income
+         CDR3 = as.numeric(as.character(CDR3)), 
+         MEDIAN_HH_INC = as.numeric(as.character(MEDIAN_HH_INC)),
          AGE_ENTRY = as.numeric(as.character(AGE_ENTRY)),
          UGDS = as.numeric(as.character(UGDS)),
          CONTROL =as.character(CONTROL),
-         COSTT4_A = as.numeric(as.character(COSTT4_A)), #avg cost of attendance for academic year institutions
-         COSTT4_P = as.numeric(as.character(COSTT4_P)), #avg cost of attendance for program year institutions
+         COSTT4_A = as.numeric(as.character(COSTT4_A)),
+         COSTT4_P = as.numeric(as.character(COSTT4_P)), 
          PCTFLOAN = as.numeric(as.character(PCTFLOAN)),
          PCTPELL = as.numeric(as.character(PCTPELL)),
          MD_FAMINC = as.numeric(as.character(MD_FAMINC))) 
 
 college_09_15_valid <- college_09_15_valid_ %>%
-  select(INSTNM, COMPL_RPY_3YR_RT, GRAD_DEBT_MDN,PCTFLOAN, PCTPELL, MD_EARN_WNE_P6, MD_EARN_WNE_P8, MD_EARN_WNE_P10,
-         CDR3, MEDIAN_HH_INC, AGE_ENTRY, UGDS, CONTROL, COSTT4_A, COSTT4_P, Year, DEBT_TO_EARN, MD_FAMINC) %>%
+  select(INSTNM, COMPL_RPY_3YR_RT, GRAD_DEBT_MDN,PCTFLOAN, PCTPELL, 
+         MD_EARN_WNE_P6, MD_EARN_WNE_P8, MD_EARN_WNE_P10,
+         CDR3, MEDIAN_HH_INC, AGE_ENTRY, UGDS, CONTROL, COSTT4_A, 
+         COSTT4_P, Year, DEBT_TO_EARN, MD_FAMINC) %>%
   mutate(COMPL_RPY_3YR_RT = as.numeric(as.character(COMPL_RPY_3YR_RT)),
          GRAD_DEBT_MDN = as.numeric(as.character(GRAD_DEBT_MDN)),
          MD_EARN_WNE_P6 = as.numeric(as.character(MD_EARN_WNE_P6)),
          MD_EARN_WNE_P8 = as.numeric(as.character(MD_EARN_WNE_P8)),
          MD_EARN_WNE_P10 = as.numeric(as.character(MD_EARN_WNE_P10)),
-         CDR3 = as.numeric(as.character(CDR3)), # three-year cohort default rate
-         MEDIAN_HH_INC = as.numeric(as.character(MEDIAN_HH_INC)), #Median household income
+         CDR3 = as.numeric(as.character(CDR3)), 
+         MEDIAN_HH_INC = as.numeric(as.character(MEDIAN_HH_INC)),
          AGE_ENTRY = as.numeric(as.character(AGE_ENTRY)),
          UGDS = as.numeric(as.character(UGDS)),
          CONTROL =as.character(CONTROL),
-         COSTT4_A = as.numeric(as.character(COSTT4_A)), #avg cost of attendance for academic year institutions
-         COSTT4_P = as.numeric(as.character(COSTT4_P)), #avg cost of attendance for program year institutions
+         COSTT4_A = as.numeric(as.character(COSTT4_A)),
+         COSTT4_P = as.numeric(as.character(COSTT4_P)),
          PCTFLOAN = as.numeric(as.character(PCTFLOAN)),
          PCTPELL = as.numeric(as.character(PCTPELL)),
          MD_FAMINC = as.numeric(as.character(MD_FAMINC))) 
 ```
 
-## 4. EDA for deciding predictors for prediction of response variable: COMPL_RPY_3YR_RT
+## 4. EDA for deciding predictors for response variable: COMPL_RPY_3YR_RT
 
 We have multiple variables related to earnings, such as MD_EARN_WNE_P6, MD_EARN_WNE_P8 and MD_EARN_WNE_P10. We can see if there's a strong correlation between these three, if there is, then we can use only one of them in our modelling.
 
 ```{r, message=FALSE, warning=FALSE}
 college_09_15_train %>% 
   ggplot() + 
-  geom_point(aes(x = MD_EARN_WNE_P6, y = MD_EARN_WNE_P8), color = "darkolivegreen4", alpha = 0.1) + 
+  geom_point(aes(x = MD_EARN_WNE_P6, y = MD_EARN_WNE_P8), 
+             color = "darkolivegreen4", alpha = 0.1) + 
   facet_wrap(~Year)+
   labs(title = "Correlation between different variables for median earning",
        x = "Meadian Earning 6-years after graduation",
@@ -150,7 +162,8 @@ college_09_15_train %>%
 
 college_09_15_train %>% 
   ggplot() + 
-  geom_point(aes(x = MD_EARN_WNE_P6, y = MD_EARN_WNE_P10), color = "aquamarine4", alpha = 0.1) + 
+  geom_point(aes(x = MD_EARN_WNE_P6, y = MD_EARN_WNE_P10),
+             color = "aquamarine4", alpha = 0.1) + 
   facet_wrap(~Year) +
   labs(title = "Correlation between different variables for median earning",
        x = "Meadian Earning 6-years after graduation",
@@ -163,7 +176,8 @@ Since we see a high linear correlation between these three, we can arbitrarily d
 ```{r, message=FALSE, warning=FALSE}
 college_09_15_train %>%
   ggplot() +
-  geom_point(aes(x = DEBT_TO_EARN, y = COMPL_RPY_3YR_RT), color = "deepskyblue", alpha = 0.1) +
+  geom_point(aes(x = DEBT_TO_EARN, y = COMPL_RPY_3YR_RT),
+             color = "deepskyblue", alpha = 0.1) +
   facet_wrap(~Year)+
   labs(title = "Effect of Debt-to-Earnings ratio on Response Variable",
        x = "Debt-to-earnings ratio",
@@ -178,7 +192,8 @@ college_09_15_train %>%
   ggplot() +
   geom_point(aes(x = PCTFLOAN, y = COMPL_RPY_3YR_RT), color = "lightpink3", alpha = 0.1) +
   facet_wrap(~Year)+
-  labs(title = "Effect of proportion of undergraduate students who received federal loans on Response Variable",
+  labs(title = "Effect of proportion of undergraduate students \n
+       who received federal loans on Response Variable",
        x = "Prop of students receiving fed loan",
        y = "3-yr repayment rate for completers")
 ```
@@ -189,9 +204,11 @@ Mostly random, disregard.
 ```{r, message=FALSE, warning=FALSE}
 college_09_15_train %>%
   ggplot() +
-  geom_point(aes(x = PCTPELL, y = COMPL_RPY_3YR_RT), color = "mediumorchid4", alpha = 0.2) +
+  geom_point(aes(x = PCTPELL, y = COMPL_RPY_3YR_RT),
+             color = "mediumorchid4", alpha = 0.2) +
   facet_wrap(~Year)+
-  labs(title = "Effect of proportion of undergraduate students who received PELL grants on Response Variable",
+  labs(title = "Effect of proportion of undergraduate students \n
+       who received PELL grants on Response Variable",
        x = "Prop of students receiving PELL grants",
        y = "3-yr repayment rate for completers")
 ```
@@ -200,7 +217,8 @@ Strong negative correlation, keep.
 ```{r, message=FALSE, warning=FALSE}
 college_09_15_train %>%
   ggplot() +
-  geom_point(aes(x = MD_EARN_WNE_P8, y = COMPL_RPY_3YR_RT), color = "palegreen4", alpha = 0.1) +
+  geom_point(aes(x = MD_EARN_WNE_P8, y = COMPL_RPY_3YR_RT), 
+             color = "palegreen4", alpha = 0.1) +
   facet_wrap(~Year)+
   labs(title = "Effect of median earnings on Response Variable",
        x = "Median earnings of students 8-yrs after graduation",
@@ -212,7 +230,8 @@ Keep MD_EARN_WNE_P8.
 ```{r, message=FALSE, warning=FALSE}
 college_09_15_train %>%
   ggplot() +
-  geom_point(aes(x = CDR3, y = COMPL_RPY_3YR_RT), color = "purple3", alpha = 0.1) +
+  geom_point(aes(x = CDR3, y = COMPL_RPY_3YR_RT), 
+             color = "purple3", alpha = 0.1) +
   facet_wrap(~Year)+
   labs(title = "Effect of 3-yr cohort default rate on Response Variable",
        x = "3-yr cohort default rate",
@@ -223,7 +242,8 @@ Keep CDR3.
 ```{r, message=FALSE, warning=FALSE}
 college_09_15_train %>%
   ggplot() +
-  geom_point(aes(x = AGE_ENTRY, y = COMPL_RPY_3YR_RT), color = "darkgreen", alpha = 0.1) +
+  geom_point(aes(x = AGE_ENTRY, y = COMPL_RPY_3YR_RT),
+             color = "darkgreen", alpha = 0.1) +
   facet_wrap(~Year)+
   labs(title = "Effect of age of entry on Response Variable",
        x = "age of entry",
@@ -277,18 +297,21 @@ college_09_15_valid <- college_09_15_valid %>%
   filter(log_MD_FAMINC >= 0)
 
   
-# this model was decided after trying various combinations of predictors, checking their R-squared values, rmse, etc
-# the analysis of this can be found later in this document in the 6th section titled: "R-Square analysis for overfitting tests"
-model <- lm(COMPL_RPY_3YR_RT ~ DEBT_TO_EARN + PCTPELL  + MD_EARN_WNE_P8 + log2(COSTT4_A) + log_MD_FAMINC,
+# this model was decided after trying various combinations of predictors,
+# checking their R-squared values, rmse, etc
+# the analysis of this can be found later in this document in the 6th 
+# section titled: "R-Square analysis for overfitting tests"
+model <- lm(COMPL_RPY_3YR_RT ~ DEBT_TO_EARN + PCTPELL  + MD_EARN_WNE_P8 + 
+              log2(COSTT4_A) + log_MD_FAMINC,
               data = college_09_15_train)
 
 summary(model)
 
 print("RMSE for train data")
-rmse(model, college_09_15_train) #0.092267
+rmse(model, college_09_15_train) 
 
 print("RMSE for test data")
-rmse(model, college_09_15_test)  #0.09390385
+rmse(model, college_09_15_test)  
 
 print("Mean Absolute Error for Test Data" )
 mae(model, college_09_15_test)
@@ -399,14 +422,16 @@ college_09_15_test %>%
   r_squared <- summary(linear.model)$r.squared
   adjusted_r_squared <- summary(linear.model)$adj.r.squared
   predicted_r_squared <- predicted_r_squared_val(linear.model)
-  return.df <- data.frame(r.squared = r_squared, adjusted.r.squared = adjusted_r_squared, predicted.r.squared = predicted_r_squared)
+  return.df <- data.frame(r.squared = r_squared, 
+                          adjusted.r.squared = adjusted_r_squared, 
+                          predicted.r.squared = predicted_r_squared)
   return(return.df)
 }
 
 predicted_r_squared_val <- function(linear.model) {
   lm.anova <- anova(linear.model)
   tot_sum_sq <- sum(lm.anova$'Sum Sq')
-  pred.r.squared <- 1-PRESS(linear.model)/(tot_sum_sq)
+  pred.r.squared <- 1-pred_residual_sq_sum(linear.model)/(tot_sum_sq)
   
   return(pred.r.squared)
 }
@@ -432,24 +457,29 @@ model_3 <- lm(COMPL_RPY_3YR_RT ~ DEBT_TO_EARN, + MD_EARN_WNE_P8 + PCTPELL,
               data = college_09_15_train)
 rmse(model_3, college_09_15_valid) #0.1997196
 
-model_4 <- lm(COMPL_RPY_3YR_RT ~ DEBT_TO_EARN + PCTPELL  + MD_EARN_WNE_P8 + log2(COSTT4_A) + log_MD_FAMINC,
+model_4 <- lm(COMPL_RPY_3YR_RT ~ DEBT_TO_EARN + PCTPELL  + 
+                MD_EARN_WNE_P8 + log2(COSTT4_A) + log_MD_FAMINC,
               data = college_09_15_train)
 rmse(model_4, college_09_15_valid) #0.0921737
 
-model_5 <- lm(COMPL_RPY_3YR_RT ~ DEBT_TO_EARN, + MD_EARN_WNE_P8 +PCTPELL + CDR3 + log2(COSTT4_A),
+model_5 <- lm(COMPL_RPY_3YR_RT ~ DEBT_TO_EARN, + MD_EARN_WNE_P8 +PCTPELL +
+                CDR3 + log2(COSTT4_A),
               data = college_09_15_train) #0.2250866
 rmse(model_5, college_09_15_valid)
 
-model_6 <- lm(COMPL_RPY_3YR_RT ~ DEBT_TO_EARN, + MD_EARN_WNE_P8 +PCTPELL + CDR3 + log2(COSTT4_A) + log_MD_FAMINC,
+model_6 <- lm(COMPL_RPY_3YR_RT ~ DEBT_TO_EARN, + MD_EARN_WNE_P8 +PCTPELL + 
+                CDR3 + log2(COSTT4_A) + log_MD_FAMINC,
               data = college_09_15_train)
 rmse(model_6, college_09_15_valid) #0.2343732
 
-model_7 <- lm(COMPL_RPY_3YR_RT ~ DEBT_TO_EARN, + MD_EARN_WNE_P8 +PCTPELL + CDR3 + log2(COSTT4_A) + log_MD_FAMINC + AGE_ENTRY,
+model_7 <- lm(COMPL_RPY_3YR_RT ~ DEBT_TO_EARN, + MD_EARN_WNE_P8 +PCTPELL + 
+                CDR3 + log2(COSTT4_A) + log_MD_FAMINC + AGE_ENTRY,
               data = college_09_15_train)
 rmse(model_7, college_09_15_valid) #0.2104708
 
 
-ldply(list(model_1, model_2, model_3, model_4, model_5, model_6, model_7), r_square_values)
+ldply(list(model_1, model_2, model_3, model_4, model_5, model_6, model_7), 
+      r_square_values)
 
 
 rmse(model_4, college_09_15_test)

@@ -15,7 +15,7 @@ library(modelr)
 library(fiftystater)
 ```
 
-```{r code1, eval=FALSE, results="hide"}
+```{r code1, eval=FALSE, results="hide",warning= FALSE}
 
 # loading a year of data
 col_08_09 <- read_csv("MERGED2016_17_PP.csv")
@@ -62,7 +62,7 @@ loan_1617 %>%
 ```
 
 
-```{r data1, cache=TRUE}
+```{r data1, cache=TRUE, warning= FALSE}
 # merge
 col_08_09 <- read.csv("MERGED2016_17_PP.csv")
 col_08_09 <- col_08_09 %>%
@@ -107,7 +107,7 @@ mass <- c("Massachusetts Institute of Technology","Harvard University",
 "University of Massachusetts-Dartmouth") 
 ```
 
-```{r code2}
+```{r code2, warning= FALSE}
 # average debt to earnings ratio by state - excude null data 
 colleges %>% 
   filter(CONTROL %in% c("1", "2"), ICLEVEL == "1") %>%
