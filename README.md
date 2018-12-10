@@ -9,7 +9,7 @@ Data source: https://collegescorecard.ed.gov/data/
 Project file descriptions: 
 Student-Loan-Data.Rmd - Code related to modeling .  
 Student-Loan-EDA.Rmd - Code related to EDA* .  
-Student-Loan-EDA-2.Rmd - Code related to more EDA . 
+Student-Loan-EDA-2.Rmd - Code related to more EDA .     
 Correlation.Rmd - Code for correlations . 
 
 *Note that the 'fiftystater' package was very recently removed from CRAN, so code generating maps in this file will not compile on systems that do not already have this package installed. Refer to pdf out of file to see original output of the code.   
